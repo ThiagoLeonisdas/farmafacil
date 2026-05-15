@@ -1,0 +1,837 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue-primary: #1565C0;
+    --blue-light: #E3F2FD;
+    --blue-mid: #1976D2;
+    --green-primary: #2E7D32;
+    --green-light: #E8F5E9;
+    --green-btn: #388E3C;
+    --green-hover: #2E7D32;
+    --red-primary: #C62828;
+    --red-light: #FFEBEE;
+    --gray-bg: #F5F5F5;
+    --gray-text: #616161;
+    --gray-border: #E0E0E0;
+    --white: #FFFFFF;
+    --text-dark: #212121;
+  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+  .device-frame {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 0;
+    background: transparent;
+  }
+  .phone {
+    width: 360px;
+    height: 720px;
+    background: var(--white);
+    border-radius: 32px;
+    border: 2.5px solid #BDBDBD;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    position: relative;
+  }
+  .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* TOP BAR */
+  .top-bar {
+    background: var(--blue-primary);
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .top-bar .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+  }
+  .top-bar .logo span { color: #90CAF9; }
+  .icon-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 8px;
+    color: var(--white);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.25); }
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #FF5252;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* SEARCH BAR */
+  .search-wrap {
+    background: var(--blue-primary);
+    padding: 0 16px 14px;
+    flex-shrink: 0;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 24px;
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .search-box input {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    flex: 1;
+    color: var(--text-dark);
+    background: transparent;
+  }
+  .search-box i { color: var(--gray-text); font-size: 18px; }
+
+  /* PRODUCT LIST */
+  .content-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-text);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+  }
+  .product-card {
+    background: var(--white);
+    border: 0.5px solid var(--gray-border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .product-card:hover { border-color: var(--blue-mid); }
+  .product-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--blue-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .product-info { flex: 1; }
+  .product-name { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 2px; }
+  .product-sub { font-size: 12px; color: var(--gray-text); margin-bottom: 4px; }
+  .product-price { font-size: 15px; font-weight: 700; color: var(--blue-primary); }
+  .btn-ver {
+    background: var(--blue-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-ver:hover { background: var(--blue-mid); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+  }
+  .empty-state i { font-size: 48px; color: var(--gray-border); margin-bottom: 12px; display: block; }
+  .empty-state p { font-size: 14px; color: var(--gray-text); }
+
+  /* SCREEN 2 - PRODUTO DETALHE */
+  .product-hero {
+    background: linear-gradient(160deg, var(--blue-primary) 0%, var(--blue-mid) 100%);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.28); }
+  .hero-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    flex-shrink: 0;
+  }
+  .hero-info { flex: 1; }
+  .hero-name { font-size: 17px; font-weight: 700; color: white; margin-bottom: 2px; }
+  .hero-cat { font-size: 12px; color: rgba(255,255,255,0.75); margin-bottom: 4px; }
+  .hero-price { font-size: 20px; font-weight: 800; color: #A5D6A7; }
+
+  .detail-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .info-card {
+    background: var(--gray-bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .info-card-title { font-size: 12px; font-weight: 600; color: var(--gray-text); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+  .info-card-text { font-size: 14px; color: var(--text-dark); line-height: 1.5; }
+  .tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    background: var(--blue-light);
+    color: var(--blue-primary);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .tag.green { background: var(--green-light); color: var(--green-primary); }
+  .tag.red { background: var(--red-light); color: var(--red-primary); }
+
+  .detail-footer { padding: 12px 16px; border-top: 0.5px solid var(--gray-border); flex-shrink: 0; }
+  .qty-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .qty-label { font-size: 13px; color: var(--gray-text); font-weight: 500; }
+  .qty-ctrl { display: flex; align-items: center; gap: 10px; }
+  .qty-btn {
+    width: 30px; height: 30px;
+    background: var(--blue-light);
+    border: none; border-radius: 8px;
+    color: var(--blue-primary); font-size: 18px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .qty-num { font-size: 16px; font-weight: 700; color: var(--text-dark); min-width: 22px; text-align: center; }
+
+  .btn-green {
+    width: 100%;
+    background: var(--green-btn);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .btn-green:hover { background: var(--green-hover); }
+  .btn-green i { font-size: 18px; }
+
+  /* TOAST */
+  .toast {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green-btn);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.red { background: var(--red-primary); }
+
+  /* SCREEN 3 - CARRINHO */
+  .cart-item {
+    background: white;
+    border: 0.5px solid var(--gray-border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cart-icon {
+    width: 44px; height: 44px;
+    background: var(--blue-light);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .cart-info { flex: 1; }
+  .cart-name { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 2px; }
+  .cart-qty { font-size: 12px; color: var(--gray-text); }
+  .cart-price { font-size: 14px; font-weight: 700; color: var(--blue-primary); }
+  .remove-btn {
+    background: var(--red-light);
+    border: none;
+    border-radius: 8px;
+    color: var(--red-primary);
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.15s;
+  }
+  .remove-btn:hover { background: #FFCDD2; }
+
+  .cart-summary {
+    padding: 12px 16px;
+    border-top: 0.5px solid var(--gray-border);
+    flex-shrink: 0;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .summary-label { font-size: 13px; color: var(--gray-text); }
+  .summary-val { font-size: 13px; color: var(--text-dark); font-weight: 500; }
+  .summary-total { font-size: 16px; font-weight: 800; color: var(--text-dark); }
+  .summary-total-val { font-size: 17px; font-weight: 800; color: var(--blue-primary); }
+  .divider { border: none; border-top: 0.5px solid var(--gray-border); margin: 8px 0; }
+
+  /* SCREEN 4 - LOGIN */
+  .login-hero {
+    background: var(--blue-primary);
+    padding: 32px 20px 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .login-logo-icon {
+    width: 64px; height: 64px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 32px;
+  }
+  .login-title { font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .login-title span { color: #90CAF9; }
+  .login-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+  .login-body { flex: 1; overflow-y: auto; padding: 20px 20px; background: var(--white); }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--gray-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block; }
+  .form-input {
+    width: 100%;
+    border: 1.5px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 11px 14px 11px 38px;
+    font-size: 14px;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.15s;
+    background: white;
+  }
+  .form-input:focus { border-color: var(--blue-mid); }
+  .input-wrap { position: relative; }
+  .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-text);
+    font-size: 17px;
+  }
+  .error-msg {
+    background: var(--red-light);
+    color: var(--red-primary);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .error-msg.show { display: flex; }
+  .login-footer { padding: 0 20px 16px; flex-shrink: 0; }
+  .btn-link {
+    background: none;
+    border: 1.5px solid var(--blue-primary);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--blue-primary);
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s;
+    margin-top: 8px;
+  }
+  .btn-link:hover { background: var(--blue-light); }
+  .forgot { text-align: center; margin-top: 10px; }
+  .forgot a { font-size: 12px; color: var(--blue-mid); cursor: pointer; }
+
+  /* SCREEN 5 - CONFIRMAÇÃO */
+  .confirm-hero {
+    background: var(--green-btn);
+    padding: 28px 20px 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .confirm-icon {
+    width: 70px; height: 70px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 36px;
+  }
+  .confirm-title { font-size: 20px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .confirm-sub { font-size: 13px; color: rgba(255,255,255,0.8); }
+
+  .confirm-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .order-num {
+    background: var(--green-light);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .order-num-label { font-size: 12px; color: var(--gray-text); }
+  .order-num-val { font-size: 14px; font-weight: 800; color: var(--green-primary); }
+
+  .steps-list { margin-bottom: 14px; }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--gray-border);
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-dot {
+    width: 30px; height: 30px;
+    background: var(--green-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green-primary);
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .step-text { flex: 1; }
+  .step-title-t { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 1px; }
+  .step-desc { font-size: 12px; color: var(--gray-text); }
+
+  .confirm-footer { padding: 12px 16px; border-top: 0.5px solid var(--gray-border); flex-shrink: 0; }
+</style>
+
+<h2 class="sr-only">Protótipo interativo FarmaFácil — 5 telas navegáveis</h2>
+
+<div class="device-frame">
+  <div class="phone" id="phone">
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"><i class="ti ti-check" aria-hidden="true"></i><span id="toast-msg"></span></div>
+
+    <!-- =================== TELA 1: HOME =================== -->
+    <div class="screen active" id="screen-home">
+      <div class="top-bar">
+        <div class="logo">Farma<span>Fácil</span></div>
+        <button class="icon-btn" onclick="goTo('screen-cart')" aria-label="Carrinho">
+          <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+          <span class="badge" id="cart-badge">0</span>
+        </button>
+      </div>
+      <div class="search-wrap">
+        <div class="search-box">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <input type="text" placeholder="Buscar medicamento..." id="search-input" oninput="filterProducts()" aria-label="Buscar medicamento" />
+        </div>
+      </div>
+      <div class="content-scroll">
+        <div class="section-title">Medicamentos disponíveis</div>
+        <div id="product-list"></div>
+        <div class="empty-state" id="empty-state">
+          <i class="ti ti-pill-off" aria-hidden="true"></i>
+          <p>Nenhum produto encontrado para sua busca.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== TELA 2: DETALHE =================== -->
+    <div class="screen" id="screen-detail">
+      <div class="product-hero">
+        <button class="back-btn" onclick="goTo('screen-home')" aria-label="Voltar">
+          <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        </button>
+        <div class="hero-icon" id="d-icon"></div>
+        <div class="hero-info">
+          <div class="hero-name" id="d-name"></div>
+          <div class="hero-cat" id="d-cat"></div>
+          <div class="hero-price" id="d-price"></div>
+        </div>
+      </div>
+      <div class="detail-body">
+        <div class="info-card">
+          <div class="info-card-title">Descrição</div>
+          <div class="info-card-text" id="d-desc"></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Uso</div>
+          <div class="tag-row" id="d-tags"></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Disponibilidade</div>
+          <div class="info-card-text" style="color: var(--green-primary); font-weight: 600;">
+            <i class="ti ti-circle-check" aria-hidden="true"></i> Em estoque
+          </div>
+        </div>
+      </div>
+      <div class="detail-footer">
+        <div class="qty-row">
+          <span class="qty-label">Quantidade</span>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty(-1)" aria-label="Diminuir quantidade">−</button>
+            <span class="qty-num" id="qty-num">1</span>
+            <button class="qty-btn" onclick="changeQty(1)" aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>
+        <button class="btn-green" onclick="addToCart()">
+          <i class="ti ti-shopping-cart-plus" aria-hidden="true"></i>
+          Adicionar ao carrinho
+        </button>
+      </div>
+    </div>
+
+    <!-- =================== TELA 3: CARRINHO =================== -->
+    <div class="screen" id="screen-cart">
+      <div class="top-bar" style="justify-content: flex-start; gap: 12px;">
+        <button class="icon-btn" onclick="goTo('screen-home')" aria-label="Voltar">
+          <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        </button>
+        <div class="logo" style="font-size: 16px;">Meu Carrinho</div>
+      </div>
+      <div class="content-scroll" id="cart-list-wrap">
+        <div id="cart-list"></div>
+        <div class="empty-state" id="cart-empty" style="display:flex">
+          <i class="ti ti-shopping-cart-off" aria-hidden="true"></i>
+          <p>Seu carrinho está vazio.<br>Adicione medicamentos para continuar.</p>
+        </div>
+      </div>
+      <div class="cart-summary" id="cart-summary" style="display:none">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-val" id="cart-subtotal">R$ 0,00</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Entrega</span>
+          <span class="summary-val" style="color: var(--green-primary); font-weight: 600;">Grátis</span>
+        </div>
+        <hr class="divider">
+        <div class="summary-row">
+          <span class="summary-total">Total</span>
+          <span class="summary-total-val" id="cart-total">R$ 0,00</span>
+        </div>
+        <button class="btn-green" style="margin-top:10px" onclick="goTo('screen-login')">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          Finalizar compra
+        </button>
+      </div>
+    </div>
+
+    <!-- =================== TELA 4: LOGIN =================== -->
+    <div class="screen" id="screen-login">
+      <div class="login-hero">
+        <div class="login-logo-icon"><i class="ti ti-pill" aria-hidden="true"></i></div>
+        <div class="login-title">Farma<span>Fácil</span></div>
+        <div class="login-sub">Entre para finalizar seu pedido</div>
+      </div>
+      <div class="login-body">
+        <div class="error-msg" id="login-error">
+          <i class="ti ti-alert-circle" aria-hidden="true"></i>
+          E-mail ou senha inválidos. Tente novamente.
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email-input">E-mail</label>
+          <div class="input-wrap">
+            <i class="ti ti-mail input-icon" aria-hidden="true"></i>
+            <input class="form-input" id="email-input" type="email" placeholder="seu@email.com" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="pass-input">Senha</label>
+          <div class="input-wrap">
+            <i class="ti ti-lock input-icon" aria-hidden="true"></i>
+            <input class="form-input" id="pass-input" type="password" placeholder="••••••••" />
+          </div>
+        </div>
+        <div class="forgot"><a>Esqueceu a senha?</a></div>
+      </div>
+      <div class="login-footer">
+        <div id="login-err-area"></div>
+        <button class="btn-green" onclick="doLogin()">
+          <i class="ti ti-login" aria-hidden="true"></i>
+          Entrar
+        </button>
+        <button class="btn-link" onclick="goTo('screen-home')">← Voltar às compras</button>
+      </div>
+    </div>
+
+    <!-- =================== TELA 5: CONFIRMAÇÃO =================== -->
+    <div class="screen" id="screen-confirm">
+      <div class="confirm-hero">
+        <div class="confirm-icon"><i class="ti ti-check" aria-hidden="true"></i></div>
+        <div class="confirm-title">Pedido realizado!</div>
+        <div class="confirm-sub">Seu pedido foi confirmado com sucesso</div>
+      </div>
+      <div class="confirm-body">
+        <div class="order-num">
+          <div>
+            <div class="order-num-label">Número do pedido</div>
+            <div class="order-num-val" id="order-num">#FF2024-001</div>
+          </div>
+          <i class="ti ti-receipt" style="font-size:24px; color: var(--green-primary);" aria-hidden="true"></i>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Resumo do pedido</div>
+          <div id="confirm-items"></div>
+          <hr class="divider" style="margin: 8px 0;">
+          <div class="summary-row">
+            <span class="summary-total" style="font-size:14px">Total pago</span>
+            <span class="summary-total-val" style="font-size:15px" id="confirm-total">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-dot"><i class="ti ti-check" aria-hidden="true"></i></div>
+            <div class="step-text">
+              <div class="step-title-t">Pedido confirmado</div>
+              <div class="step-desc">Recebemos seu pedido com sucesso</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot"><i class="ti ti-package" aria-hidden="true"></i></div>
+            <div class="step-text">
+              <div class="step-title-t">Em separação</div>
+              <div class="step-desc">Seus medicamentos estão sendo separados</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot"><i class="ti ti-truck-delivery" aria-hidden="true"></i></div>
+            <div class="step-text">
+              <div class="step-title-t">Entrega prevista</div>
+              <div class="step-desc">Hoje até as 18h00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="confirm-footer">
+        <button class="btn-green" onclick="resetAndHome()">
+          <i class="ti ti-home" aria-hidden="true"></i>
+          Voltar ao início
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const products = [
+  { id:1, name:'Dipirona 500mg', cat:'Analgésico', price:8.90, icon:'💊', desc:'Medicamento analgésico e antipirético indicado para dores leves a moderadas e estados febris. Age rapidamente, com efeito em até 30 minutos.', tags:['Adultos','Crianças >15kg','Sem receita'] },
+  { id:2, name:'Amoxicilina 500mg', cat:'Antibiótico', price:24.50, icon:'💉', desc:'Antibiótico de amplo espectro pertencente ao grupo das penicilinas. Indicado para infecções bacterianas do trato respiratório, urinário e de pele.', tags:['Com receita','Adultos','Uso oral'] },
+  { id:3, name:'Omeprazol 20mg', cat:'Antiácido', price:15.30, icon:'🔵', desc:'Inibidor da bomba de prótons que reduz a produção de ácido no estômago. Indicado para gastrite, úlcera e refluxo gastroesofágico.', tags:['Adultos','Sem receita','Uso oral'] },
+  { id:4, name:'Ibuprofeno 600mg', cat:'Anti-inflamatório', price:12.80, icon:'🟠', desc:'Anti-inflamatório não esteroidal (AINE) com ação analgésica, antipirética e anti-inflamatória. Indicado para dores musculares, artrite e febre.', tags:['Adultos','Sem receita','Com alimentos'] },
+  { id:5, name:'Vitamina C 1g', cat:'Suplemento', price:19.90, icon:'🟡', desc:'Suplemento vitamínico essencial para o sistema imunológico, produção de colágeno e absorção de ferro. Auxilia na prevenção de deficiências nutricionais.', tags:['Adultos','Crianças','Sem receita'] },
+  { id:6, name:'Loratadina 10mg', cat:'Antialérgico', price:11.20, icon:'🟢', desc:'Anti-histamínico não sedativo indicado para alergias respiratórias, urticária e rinite alérgica. Efeito prolongado de até 24 horas.', tags:['Adultos','Sem receita','Não sedativo'] },
+];
+
+let cart = [];
+let selectedProduct = null;
+let qty = 1;
+
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id === 'screen-cart') renderCart();
+}
+
+function filterProducts() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
+  renderProducts(filtered);
+}
+
+function renderProducts(list) {
+  const el = document.getElementById('product-list');
+  const empty = document.getElementById('empty-state');
+  if(!list.length) { el.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  el.innerHTML = list.map(p => `
+    <div class="product-card" onclick="openProduct(${p.id})" role="button" aria-label="Ver ${p.name}">
+      <div class="product-icon">${p.icon}</div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-sub">${p.cat}</div>
+        <div class="product-price">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+      </div>
+      <button class="btn-ver" onclick="event.stopPropagation(); openProduct(${p.id})">Ver mais</button>
+    </div>
+  `).join('');
+}
+
+function openProduct(id) {
+  selectedProduct = products.find(p => p.id === id);
+  qty = 1;
+  document.getElementById('d-icon').textContent = selectedProduct.icon;
+  document.getElementById('d-name').textContent = selectedProduct.name;
+  document.getElementById('d-cat').textContent = selectedProduct.cat;
+  document.getElementById('d-price').textContent = 'R$ ' + selectedProduct.price.toFixed(2).replace('.',',');
+  document.getElementById('d-desc').textContent = selectedProduct.desc;
+  document.getElementById('d-tags').innerHTML = selectedProduct.tags.map((t,i) => `<span class="tag ${i===1?'green':i===2?'':''}">${t}</span>`).join('');
+  document.getElementById('qty-num').textContent = qty;
+  goTo('screen-detail');
+}
+
+function changeQty(d) {
+  qty = Math.max(1, qty + d);
+  document.getElementById('qty-num').textContent = qty;
+}
+
+function addToCart() {
+  const existing = cart.find(c => c.id === selectedProduct.id);
+  if(existing) { existing.qty += qty; } 
+  else { cart.push({...selectedProduct, qty}); }
+  updateBadge();
+  showToast('Produto adicionado ao carrinho!', false);
+  setTimeout(() => goTo('screen-home'), 1200);
+}
+
+function updateBadge() {
+  const total = cart.reduce((s, c) => s + c.qty, 0);
+  document.getElementById('cart-badge').textContent = total;
+}
+
+function renderCart() {
+  const list = document.getElementById('cart-list');
+  const empty = document.getElementById('cart-empty');
+  const summary = document.getElementById('cart-summary');
+  if(!cart.length) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    summary.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  summary.style.display = 'block';
+  list.innerHTML = cart.map((c,i) => `
+    <div class="cart-item">
+      <div class="cart-icon">${c.icon}</div>
+      <div class="cart-info">
+        <div class="cart-name">${c.name}</div>
+        <div class="cart-qty">Qtd: ${c.qty}</div>
+      </div>
+      <div class="cart-price">R$ ${(c.price * c.qty).toFixed(2).replace('.',',')}</div>
+      <button class="remove-btn" onclick="removeFromCart(${i})" aria-label="Remover ${c.name}">
+        <i class="ti ti-trash" aria-hidden="true"></i>
+      </button>
+    </div>
+  `).join('');
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  document.getElementById('cart-subtotal').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  document.getElementById('cart-total').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+}
+
+function removeFromCart(i) {
+  cart.splice(i, 1);
+  updateBadge();
+  renderCart();
+  showToast('Item removido', true);
+}
+
+function doLogin() {
+  const email = document.getElementById('email-input').value;
+  const pass = document.getElementById('pass-input').value;
+  const errEl = document.getElementById('login-error');
+  if(!email || !pass || pass.length < 4) {
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  document.getElementById('order-num').textContent = '#FF' + Date.now().toString().slice(-6);
+  document.getElementById('confirm-items').innerHTML = cart.map(c => `
+    <div class="summary-row" style="padding: 4px 0;">
+      <span style="font-size:13px; color: var(--text-dark);">${c.icon} ${c.name} x${c.qty}</span>
+      <span style="font-size:13px; font-weight:600; color: var(--blue-primary);">R$ ${(c.price*c.qty).toFixed(2).replace('.',',')}</span>
+    </div>
+  `).join('');
+  document.getElementById('confirm-total').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  goTo('screen-confirm');
+}
+
+function resetAndHome() {
+  cart = [];
+  updateBadge();
+  document.getElementById('email-input').value = '';
+  document.getElementById('pass-input').value = '';
+  document.getElementById('search-input').value = '';
+  goTo('screen-home');
+  filterProducts();
+}
+
+function showToast(msg, isRed) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.className = 'toast' + (isRed ? ' red' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+renderProducts(products);
+</script>
